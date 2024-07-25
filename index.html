@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Quiz App</title>
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+</head>
+<style>
+    body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.quiz-app {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+h1, h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.btn-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.hidden {
+    display: none;
+}
+</style>
+<body>
+    <div class="container">
+        <div class="quiz-app">
+            <h1>Quiz App</h1>
+            <div id="quiz-container">
+                <div id="question-container">
+                    <h2 id="question">Question will go here</h2>
+                </div>
+                <div id="answer-buttons" class="btn-container">
+                    <!-- Answer buttons will be dynamically added here -->
+                </div>
+                <button id="next-btn" class="btn">Next</button>
+            </div>
+            <div id="score-container" class="hidden">
+                <h2>Your Score: <span id="score"></span></h2>
+                <button id="restart-btn" class="btn">Restart</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const questions = [
+    {
+        question: "What is the capital of France?",
+        answers: [
+            { text: "Berlin", correct: false },
+            { text: "Madrid", correct: false },
+            { text: "Paris", correct: true },
+            { text: "Lisbon", correct: false }
+        ]
+    },
+    {
+        question: "Who wrote 'To Kill a Mockingbird'?",
+        answers: [
+            { text: "Harper Lee", correct: true },
+            { text: "J.K. Rowling", correct: false },
+            { text: "Ernest Hemingway", correct: false },
+            { text: "Mark Twain", correct: false }
+        ]
+    },
+    {
+        question: "What is the largest planet in our Solar System?",
+        answers: [
+            { text: "Earth", correct: false },
+            { text: "Mars", correct: false },
+            { text: "Jupiter", correct: true },
+            { text: "Saturn", correct: false }
+        ]
+    }
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+const questionElement = document.getElementById('question');
+const answerButtonsElement = document.getElementById('answer-buttons');
+const nextButton = document.getElementById('next-btn');
+const quizContainer = document.getElementById('quiz-container');
+const scoreContainer = document.getElementById('score-container');
+const scoreElement = document.getElementById('score');
+const restartButton = document.getElementById('restart-btn');
+
+document.addEventListener('DOMContentLoaded', () => {
+    nextButton.addEventListener('click', () => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            setNextQuestion();
+        } else {
+            showScore();
+        }
+    });
+
+    restartButton.addEventListener('click', restartQuiz);
+
+    startQuiz();
+});
+
+function startQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    quizContainer.classList.remove('hidden');
+    scoreContainer.classList.add('hidden');
+    setNextQuestion();
+}
+
+function setNextQuestion() {
+    resetState();
+    showQuestion(questions[currentQuestionIndex]);
+}
+
+function showQuestion(question) {
+    questionElement.innerText = question.question;
+    question.answers.forEach(answer => {
+        const button = document.createElement('button');
+        button.innerText = answer.text;
+        button.classList.add('btn');
+        if (answer.correct) {
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener('click', selectAnswer);
+        answerButtonsElement.appendChild(button);
+    });
+}
+
+function resetState() {
+    nextButton.classList.add('hidden');
+    while (answerButtonsElement.firstChild) {
+        answerButtonsElement.removeChild(answerButtonsElement.firstChild);
+    }
+}
+
+function selectAnswer(e) {
+    const selectedButton = e.target;
+    const correct = selectedButton.dataset.correct === 'true';
+    if (correct) {
+        score++;
+    }
+    Array.from(answerButtonsElement.children).forEach(button => {
+        setStatusClass(button, button.dataset.correct === 'true');
+    });
+    if (currentQuestionIndex < questions.length - 1) {
+        nextButton.classList.remove('hidden');
+    } else {
+        nextButton.innerText = 'Finish';
+        nextButton.classList.remove('hidden');
+    }
+}
+
+function setStatusClass(element, correct) {
+    clearStatusClass(element);
+    if (correct) {
+        element.classList.add('btn-correct');
+    } else {
+        element.classList.add('btn-wrong');
+    }
+}
+
+function clearStatusClass(element) {
+    element.classList.remove('btn-correct');
+    element.classList.remove('btn-wrong');
+}
+
+function showScore() {
+    quizContainer.classList.add('hidden');
+    scoreContainer.classList.remove('hidden');
+    scoreElement.innerText = score;
+}
+
+function restartQuiz() {
+    nextButton.innerText = 'Next';
+    startQuiz();
+}
+
+    </script>
+</body>
+</html>
